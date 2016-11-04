@@ -30,9 +30,7 @@ public class Adapter extends ArrayAdapter<User> {
 
     public Adapter(Context context, List<User> objects) {
         super(context, 0, objects);
-        mList = objects;
     }
-
 
 
     @NonNull
@@ -47,7 +45,7 @@ public class Adapter extends ArrayAdapter<User> {
 
 
         int section = mIndexer.getSectionForPosition(position);
-        Log.i(TAG,"" + section);
+        Log.i(TAG, "" + section);
         if (position == mIndexer.getPositionForSection(section)) {
             sortKey.setText(getItem(position).getHeader());
             sortKeyLayout.setVisibility(View.VISIBLE);
