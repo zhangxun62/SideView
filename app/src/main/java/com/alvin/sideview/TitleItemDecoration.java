@@ -5,6 +5,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
@@ -22,11 +23,16 @@ public class TitleItemDecoration extends RecyclerView.ItemDecoration {
     private Context mContext;
     private float mTitleHeight;
     private List<User> mList;
+    private Paint mPaint;
 
     public TitleItemDecoration(Context context, List<User> list) {
         mContext = context;
         mTitleHeight = context.getResources().getDisplayMetrics().density * 30;
         mList = list;
+        mPaint = new Paint();
+        mPaint.setAntiAlias(true);
+        mPaint.setDither(true);
+        mPaint.setTextSize(20);
     }
 
     @Override
@@ -59,10 +65,7 @@ public class TitleItemDecoration extends RecyclerView.ItemDecoration {
             if (null != child) {
                 RecyclerView.LayoutParams prams = (RecyclerView.LayoutParams) child.getLayoutParams();
                 int position = prams.getViewLayoutPosition();
-                Paint mPaint = new Paint();
-                mPaint.setAntiAlias(true);
-                mPaint.setDither(true);
-                mPaint.setTextSize(20);
+
                 if (position > -1) {
                     if (position == 0) {
                         mPaint.setColor(mContext.getResources().getColor(R.color.colorAccent));
@@ -91,5 +94,31 @@ public class TitleItemDecoration extends RecyclerView.ItemDecoration {
     @Override
     public void onDrawOver(Canvas c, RecyclerView parent, RecyclerView.State state) {
         super.onDrawOver(c, parent, state);
+        int position = ((LinearLayoutManager) parent.getLayoutManager()).findFirstVisibleItemPosition();
+
+        String header = mList.get(position).getHeader();
+        View child = parent.findViewHolderForLayoutPosition(position).itemView;
+
+        boolean flag = false;
+
+        if ((position + 1) < mList.size()) {
+            if (null != header && !header.equals(mList.get(position + 1).getHeader())) {
+                if (child.getHeight() + child.getTop() < mTitleHeight) {
+                    c.save();
+                    flag = true;
+
+                    c.translate(0, child.getHeight() + child.getTop() - mTitleHeight);
+                }
+            }
+        }
+        mPaint.setColor(mContext.getResources().getColor(R.color.colorAccent));
+        c.drawRect(parent.getPaddingLeft(), parent.getPaddingTop(), parent.getRight() - parent.getPaddingRight(), mTitleHeight + parent.getPaddingTop(), mPaint);
+        Rect rect = new Rect();
+        mPaint.getTextBounds(mList.get(position).getHeader(), 0, mList.get(position).getHeader().length(), rect);
+        mPaint.setColor(Color.WHITE);
+        c.drawText(mList.get(position).getHeader(), child.getPaddingLeft(), mTitleHeight + parent.getPaddingTop() - mTitleHeight / 2 + rect.height() / 2, mPaint);
+        if (flag)
+            c.restore();
+
     }
 }

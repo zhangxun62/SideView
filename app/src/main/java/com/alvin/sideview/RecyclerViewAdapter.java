@@ -5,6 +5,8 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AlphabetIndexer;
+import android.widget.SectionIndexer;
 import android.widget.TextView;
 
 import java.util.List;
@@ -20,6 +22,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter {
     private static final String TAG = RecyclerViewAdapter.class.getSimpleName();
     private Context mContext;
     private List<User> mList;
+    private SectionIndexer mIndexer;
 
     public RecyclerViewAdapter(Context context, List<User> list) {
         mContext = context;
@@ -44,6 +47,10 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter {
             return mList.size();
         else
             return 0;
+    }
+
+    public void setIndexer(SectionIndexer indexer) {
+        mIndexer = indexer;
     }
 
     class MyViewHolder extends RecyclerView.ViewHolder {

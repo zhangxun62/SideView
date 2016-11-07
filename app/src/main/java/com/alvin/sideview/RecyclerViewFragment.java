@@ -58,6 +58,8 @@ public class RecyclerViewFragment extends Fragment {
      */
     private Button alphabetButton;
 
+    private RecyclerViewAdapter mAdapter;
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -75,8 +77,61 @@ public class RecyclerViewFragment extends Fragment {
         mRecyclerView.addItemDecoration(new TitleItemDecoration(getContext(), mDatas));
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         mRecyclerView.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL_LIST));
-        mRecyclerView.setAdapter(new RecyclerViewAdapter(getContext(), mDatas));
+
+
+        initView();
         return mView;
+    }
+
+    private void initView() {
+        sectionToastLayout = (RelativeLayout) mView.findViewById(R.id.section_toast_layout);
+        sectionToastText = (TextView) mView.findViewById(R.id.section_toast_text);
+        alphabetButton = (Button) mView.findViewById(R.id.alphabetButton);
+
+        mAdapter = new RecyclerViewAdapter(getContext(), mDatas);
+        mIndexer = new AlphabetIndexer(new MyCursor(mDatas), 0, alphabet);
+        mAdapter.setIndexer(mIndexer);
+        mRecyclerView.setAdapter(mAdapter);
+
+        setAlpabetListener();
+    }
+
+    /**
+     * 设置字母表上的触摸事件，根据当前触摸的位置结合字母表的高度，计算出当前触摸在哪个字母上。
+     * 当手指按在字母表上时，展示弹出式分组。手指离开字母表时，将弹出式分组隐藏。
+     */
+    private void setAlpabetListener() {
+        alphabetButton.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                float alphabetHeight = alphabetButton.getHeight();
+                float y = event.getY();
+                int sectionPosition = (int) ((y / alphabetHeight) / (1f / 27f));
+                if (sectionPosition < 0) {
+                    sectionPosition = 0;
+                } else if (sectionPosition > 26) {
+                    sectionPosition = 26;
+                }
+                String sectionLetter = String.valueOf(alphabet.charAt(sectionPosition));
+                int position = mIndexer.getPositionForSection(sectionPosition);
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        alphabetButton.setBackgroundResource(R.drawable.a_z_click);
+                        sectionToastLayout.setVisibility(View.VISIBLE);
+                        sectionToastText.setText(sectionLetter);
+
+                        break;
+                    case MotionEvent.ACTION_MOVE:
+                        sectionToastText.setText(sectionLetter);
+                        ((LinearLayoutManager) mRecyclerView.getLayoutManager()).scrollToPositionWithOffset(position, 0);
+                        break;
+                    default:
+                        alphabetButton.setBackgroundResource(R.drawable.a_z);
+                        sectionToastLayout.setVisibility(View.GONE);
+                }
+                return true;
+            }
+        });
     }
 
     public static Fragment newInstance(List<User> list) {

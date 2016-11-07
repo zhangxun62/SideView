@@ -106,7 +106,7 @@ public class ListViewFragment extends Fragment {
         alphabetButton.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                float alphabetHeight = alphabetButton.getHeight();
+                float alphabetHeight = alphabetButton.getHeight() - alphabetButton.getPaddingTop() - alphabetButton.getPaddingBottom();
                 float y = event.getY();
                 int sectionPosition = (int) ((y / alphabetHeight) / (1f / 27f));
                 if (sectionPosition < 0) {
